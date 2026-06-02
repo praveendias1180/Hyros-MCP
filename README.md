@@ -3,13 +3,67 @@
 [![npm version](https://img.shields.io/npm/v/hyros-mcp.svg)](https://www.npmjs.com/package/hyros-mcp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-MCP server for the [Hyros](https://hyros.com) advertising attribution API. Gives AI assistants (Claude, Cursor, etc.) full access to your Hyros account through the [Model Context Protocol](https://modelcontextprotocol.io).
+Connect [Hyros](https://hyros.com) advertising attribution to AI assistants (Claude, Cursor, etc.) through the [Model Context Protocol](https://modelcontextprotocol.io). Ask questions about your leads, sales, calls, subscriptions, and ad performance — and let the AI pull the data and run the reports for you.
 
 **38 tools** covering leads, sales, calls, subscriptions, attribution reports, ad management, and smart analytics.
 
 Built by [Carlos Aragon](https://carlosaragon.online).
 
-## Installation
+---
+
+## 🚀 Install in 60 seconds (recommended — no downloads, no setup)
+
+You only need the **Claude app** (desktop or web). Nothing to install. No terminal. No Node.js. No config files.
+
+1. Open **Claude** → **Settings** → **Connectors**.
+2. Click **Add custom connector**.
+3. Paste this address and click **Add**:
+
+   ```
+   https://hyrosmcp.callwithcarlos.com/mcp
+   ```
+
+4. A small page opens in your browser asking for your **Hyros API key**.
+   Get it from **Hyros → Settings → Integrations → API**, paste it, and click **Connect**.
+5. Done ✅ — Hyros now shows up in Claude's tools. Try asking *"What was my revenue today?"*
+
+That's the whole thing. Your key is checked the moment you paste it (so you know
+right away if it's wrong) and is stored **encrypted on the server** — it never
+lives on your computer, and you never edit any files.
+
+### Controlling what the AI can do (permissions)
+
+Inside Claude, every tool can be set to:
+
+- **Always allow** — runs without asking (great for read-only reports and lookups)
+- **Ask every time** — Claude asks for your approval before each use
+- **Blocked** — never runs
+
+You'll find these in the connector's settings in Claude. The tools that *change*
+data (create a lead, refund an order, etc.) are flagged so Claude asks first by default.
+
+### How it works (the short version)
+
+```
+You (Claude app)  ──▶  hyrosmcp.callwithcarlos.com  ──▶  Hyros API
+                       (a secure hosted server)
+```
+
+There's a small server running in the cloud (on Cloudflare) that speaks to Hyros
+on your behalf. When you connect, it asks for your API key once, verifies it, and
+keeps it encrypted. From then on, when you ask Claude a question, Claude talks to
+that server, which fetches your real Hyros data and hands it back. You don't host
+or maintain anything.
+
+> **For developers / self-hosters:** the server lives in [`worker/`](worker/) and
+> runs on Cloudflare Workers. See [DEPLOY.md](DEPLOY.md) to deploy your own copy.
+
+---
+
+## Alternative — Run it locally (advanced / developers)
+
+Prefer to run the server on your own machine instead of using the hosted one?
+This uses the npm package and Claude Desktop's local config. You'll need Node.js 18+.
 
 ### Step 1 — Install the package
 
@@ -64,6 +118,21 @@ Same config as Claude Desktop above — add it to your MCP settings file.
 ---
 
 ## Troubleshooting
+
+### Remote connector (the 60-second install)
+
+**"That key didn't work" when you paste it** — The key is wrong, expired, or
+lacks permissions. Copy it again, exactly, from **Hyros → Settings →
+Integrations → API**. The page tells you immediately if it's valid.
+
+**Hyros tools don't appear in Claude** — Make sure you finished the browser step
+(pasting the key and clicking **Connect**). Re-open **Settings → Connectors** and
+confirm Hyros is listed and connected.
+
+**Need to change your API key later** — Just disconnect and re-add the connector
+(or reconnect) and paste the new key. Nothing else to update.
+
+### Local install
 
 **"401 Unauthorized"** — Your API key is wrong or missing. Make sure:
 1. `HYROS_API_KEY` is inside the `env` block
@@ -180,10 +249,25 @@ git clone https://github.com/CachoMX/Hyros-MCP.git
 cd Hyros-MCP
 npm install
 cp .env.example .env    # Add your API key
-npm run build           # Compile TypeScript
+npm run build           # Compile TypeScript (local/stdio version)
 npm run dev             # Run in development mode
 npm test                # Run tests
 ```
+
+### Remote server (Cloudflare Worker)
+
+The hosted connector lives in [`worker/`](worker/) and reuses all the tool logic
+in [`src/`](src/). It adds a Streamable HTTP transport plus an OAuth layer that
+collects each user's Hyros API key on a single-field page.
+
+```bash
+npm run worker:check    # Validate the bundle (wrangler dry-run, no deploy)
+npm run worker:dev      # Local dev server (wrangler dev)
+npm run worker:deploy   # Deploy to Cloudflare
+```
+
+Full operator instructions — Cloudflare token scopes, KV setup, custom domain —
+are in [DEPLOY.md](DEPLOY.md).
 
 ## License
 
