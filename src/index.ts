@@ -14,6 +14,7 @@ import { HyrosClient } from './client.js';
 import { readTools, handleReadTool } from './tools/reads.js';
 import { writeTools, handleWriteTool } from './tools/writes.js';
 import { compoundTools, handleCompoundTool } from './tools/compound.js';
+import { withTitles } from './tools/titles.js';
 
 // ─── Configuration ─────────────────────────────────────────────────────────
 
@@ -51,7 +52,7 @@ const server = new Server(
 
 // ─── All Tools ─────────────────────────────────────────────────────────────
 
-const allTools = [...readTools, ...writeTools, ...compoundTools];
+const allTools = withTitles([...readTools, ...writeTools, ...compoundTools]);
 
 const readToolNames = new Set(readTools.map((t) => t.name));
 const writeToolNames = new Set(writeTools.map((t) => t.name));

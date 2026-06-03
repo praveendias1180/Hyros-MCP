@@ -14,6 +14,7 @@ import { ICON_URL } from './icon.js';
 import { readTools, handleReadTool } from '../src/tools/reads.js';
 import { writeTools, handleWriteTool } from '../src/tools/writes.js';
 import { compoundTools, handleCompoundTool } from '../src/tools/compound.js';
+import { withTitles } from '../src/tools/titles.js';
 
 // Props are injected by the OAuth provider from the encrypted access token.
 // `apiKey` is the per-client Hyros API key captured during authorization.
@@ -25,7 +26,7 @@ type Env = {
   HYROS_BASE_URL?: string;
 };
 
-const allTools = [...readTools, ...writeTools, ...compoundTools];
+const allTools = withTitles([...readTools, ...writeTools, ...compoundTools]);
 const readToolNames = new Set(readTools.map((t) => t.name));
 const writeToolNames = new Set(writeTools.map((t) => t.name));
 const compoundToolNames = new Set(compoundTools.map((t) => t.name));
